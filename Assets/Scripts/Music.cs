@@ -30,5 +30,11 @@ public class Music : MonoBehaviour
             backgroundMusic.SetActive(false);
             loseMusic.SetActive(true);
         }
+
+        if(RubyController.timeLeft == 0)
+        {
+            backgroundMusic.SetActive(false);
+            loseMusic.SetActive(true);
+        }
     }
 }

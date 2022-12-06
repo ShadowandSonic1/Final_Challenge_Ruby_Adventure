@@ -30,6 +30,8 @@ public class Projectile : MonoBehaviour
     {
         EnemyController e = other.collider.GetComponent<EnemyController>();
         HardEnemyController h = other.collider.GetComponent<HardEnemyController>();
+        HarderEnemyController t = other.collider.GetComponent<HarderEnemyController>();
+
         if (e != null)
         {
             e.Fix();
@@ -40,6 +42,11 @@ public class Projectile : MonoBehaviour
         {
             h.Fix();
             RubyController.robotValue += 1;
+        }
+        else if (t != null)
+        {
+            HarderEnemyController.HP += 1;
+            t.Fix();            
         }
 
         Destroy(gameObject);

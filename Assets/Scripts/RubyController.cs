@@ -17,6 +17,9 @@ public class RubyController : MonoBehaviour
 
     public Text fixedRobotScore;
     public Text fixedCogScore;
+    public Text timeAttackScore;
+
+    public static float timeLeft = 60;
 
     public static int robotValue = 0;
 
@@ -24,6 +27,7 @@ public class RubyController : MonoBehaviour
 
     public GameObject winTextObject;
     public GameObject loseTextObject;
+    public GameObject timeAttackObject;
 
     public ParticleSystem damageTaken;
     public ParticleSystem healthGain;
@@ -46,8 +50,11 @@ public class RubyController : MonoBehaviour
     Vector2 lookDirection = new Vector2(1, 0);
 
     AudioSource audioSource;
+    public AudioClip speechBubble;
 
     public bool restart = false;
+    public bool timerIsOn = false;
+
 
     // Start is called before the first frame update
     void Start()
@@ -63,6 +70,20 @@ public class RubyController : MonoBehaviour
         setCountText();
         winTextObject.SetActive(false);
         loseTextObject.SetActive(false);
+        timeAttackObject.SetActive(false);
+        
+        Scene currentScene = SceneManager.GetActiveScene();
+        string sceneName = currentScene.name;
+
+        if(sceneName == "Level2")
+        {
+            if(timeLeft != 60)
+            {
+                timeAttackObject.SetActive(true);
+                timerIsOn = true;
+            }
+        }
+
     }
 
     // Update is called once per frame
@@ -112,6 +133,29 @@ public class RubyController : MonoBehaviour
                     character.DisplayDialog();
                 }
             }
+            PlaySound(speechBubble);
+        }
+
+        if(Input.GetKeyDown(KeyCode.T))
+        {
+            timeAttackObject.SetActive(true);
+            timerIsOn = true;
+        }
+
+        if(timerIsOn == true)
+        {
+
+            if(timeLeft > 0)
+            {
+                timeLeft -= Time.deltaTime;
+            }
+            else
+            {
+                timeLeft = 0;
+                timerIsOn = false;
+            }
+
+            timerDisplay(timeLeft);
         }
 
         setCountText();
@@ -188,26 +232,83 @@ public class RubyController : MonoBehaviour
                     SceneManager.LoadScene("Level2");
                 }
             }
-
-            if(robotValue == 5)
-            {
-                winTextObject.SetActive(true);
-            }
-
         }
+        else if(robotValue == 5)
+        {
+            winTextObject.SetActive(true);
+            timerIsOn = false;
 
+            if(Input.GetKey(KeyCode.R))
+            {
+                restart = true;
+                if(restart == true)
+                {
+                    winTextObject.SetActive(false);
+                    timeLeft = 60;
+                    timerIsOn = false;
+                    robotValue = 0;
+                    currentHealth = maxHealth;
+                    currentCogs = maxCogs;
+                    SceneManager.LoadScene("MainScene");
+                }
+            }
+        }
         else if (currentHealth == 0)
         {
             loseTextObject.SetActive(true);
+            timerIsOn = false;
 
             if (Input.GetKey(KeyCode.R))
             {
                 restart = true;
                 if (restart == true)
                 {
+                    loseTextObject.SetActive(false);
+                    timeLeft = 60;
+                    timerIsOn = false;
+                    robotValue = 0;
+                    currentHealth = maxHealth;
+                    currentCogs = maxCogs;
                     SceneManager.LoadScene("MainScene");
                 }
             }
         }
+        else if (timeLeft == 0)
+        {
+            loseTextObject.SetActive(true);
+            timerIsOn = false;
+
+            if (Input.GetKey(KeyCode.R))
+            {
+                restart = true;
+                if (restart == true)
+                {
+                    loseTextObject.SetActive(false);
+                    timeLeft = 60;
+                    timerIsOn = false;
+                    robotValue = 0;
+                    currentHealth = maxHealth;
+                    currentCogs = maxCogs;
+                    SceneManager.LoadScene("MainScene");
+                }
+            }
+        }
+    }
+
+    void timerDisplay(float timeDisplay)
+    {
+        if(timeDisplay < 0)
+        {
+            timeDisplay = 0;
+        }
+        else if (timeDisplay > 0)
+        {
+            timeDisplay += 1;
+        }
+
+        float minute = Mathf.FloorToInt(timeDisplay / 60);
+        float second = Mathf.FloorToInt(timeDisplay % 60);
+
+        timeAttackScore.text = string.Format("{0:00}:{1:00}", minute, second);
     }
 }
